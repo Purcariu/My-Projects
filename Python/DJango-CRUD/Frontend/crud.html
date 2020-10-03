@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="utf-8" http-equiv="encoding">
+    <meta content="text/html; charset=UTF-8; X-Content-Type-Options=nosniff" http-equiv="Content-Type" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>CRUD</title>
+    <script>
+        $.ajax({
+            type: 'GET',
+            async: true,
+            headers: {
+                "Access-Control-Allow-Origin" : "*",
+            },
+            contentType: "application/json",
+            url: "http://127.0.0.1:8000/api/persons",
+            success: function(persons) {
+                persons.forEach(person => 
+                    $('tbody').append('<tr id=' + person.id + '><th scope="row">' + person.id + '</th><td>' + person.first_name + '</td><td>' + person.last_name + '</td><td><button onclick=delete_person(' + person.id + ') class="btn btn-danger">Delete</button><button onclick=form_person(' + JSON.stringify(person) + ') class="btn btn-success">Edit</button></td></tr>')
+                )
+            },
+            error: function(error){
+                alert("Request: "+JSON.stringify(error));
+            }
+        });
+
+        function delete_person(id) {
+            $.ajax({
+                type: 'DELETE',
+                async: true,
+                contentType: "application/json",
+                url: "http://127.0.0.1:8000/api/persons/" + id,
+                success: function() {
+                    $("#" + id).remove();
+                }
+            })
+        }
+
+        function form_person(person=false) {
+            $("#form").show();
+
+            if (person != false) {
+                $("#form #first_name").val(person.first_name).text();
+                $("#form #last_name").val(person.last_name).text();
+                $("#form button").attr("onclick", "update_person(" + JSON.stringify(person.id) + ")");
+            } else {
+                $("#form #first_name").val("").text()
+                $("#form #last_name").val("").text()
+                $("#form button").attr("onclick", "create_person()");
+            }
+
+        }
+
+        function update_person(id) {
+            let first_name = $("#form #first_name").val();
+            let last_name = $("#form #last_name").val();
+            let person = {"id": id, "first_name": first_name, "last_name": last_name};
+
+            $.ajax({
+                type: "PUT",
+                async: true,
+                contentType: "application/json",
+                data:  JSON.stringify(person),
+                url: "http://127.0.0.1:8000/api/persons/" + id,
+                success: function(person) {
+                    $("tbody #" + id + " td").first().html(person.first_name);
+                    $("tbody #" + id + " td").slice(1,2).html(person.last_name);
+                }
+            })
+
+            $("#form").submit(function(e) {
+                e.preventDefault();
+            })
+            $("#form").hide();
+        }
+
+        function create_person(){
+            person = {
+                "first_name": $("#form #first_name").val(),
+                "last_name": $("#form #last_name").val()
+            }
+            $.ajax({
+                type: "POST",
+                async: true,
+                contentType: "application/json",
+                data: JSON.stringify(person),
+                url: "http://127.0.0.1:8000/api/persons",
+                success: function(person) {
+                    $("tbody").append('<tr id=' + person.id + '><th scope="row">' + person.id + '</th><td>' + person.first_name + '</td><td>' + person.last_name + '</td><td><button onclick=delete_person(' + person.id + ') class="btn btn-danger">Delete</button><button onclick=form_person(' + JSON.stringify(person) + ') class="btn btn-success">Edit</button></td></tr>');
+                }
+            })
+
+            $("#form").submit(function(e) {
+                e.preventDefault();
+            })
+            $("#form").hide();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First name</th>
+                    <th scope="col">Last name</th>
+                    <th scope="col">Action</th>  
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <button id="add-button" onclick="form_person(false)" class="btn btn-primary">Add</button>
+        <div>
+            <form id="form" style="display: none;">
+                <div class="form-group">
+                    <label for="first_name">First name</label>
+                    <input type="text" class="form-control" id="first_name">
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last name</label>
+                    <input type="text" class="form-control" id="last_name">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
