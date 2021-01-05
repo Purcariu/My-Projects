@@ -23,14 +23,14 @@ def person_list(request):
         person_serializer = PersonSerializer(data=person_data)
         if person_serializer.is_valid():
             person_serializer.save()
-            return JsonResponse(person_serializer.data, status=status.HTTP_201_CREATED) 
+            return JsonResponse(person_serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(person_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
         count = Person.objects.all().delete()
-        return JsonResponse({'message': '{} Persons were deleted successfully!'.format(count[0])}, status=status.HTTP_204_NO_CONTENT)
- 
- 
+        return JsonResponse({'message': '{} Persons were deleted successfully!'.format(count[0])}, status=200)
+
+
 @api_view(['GET', 'PUT', 'DELETE'])
 def person_detail(request, id):
     try:
@@ -44,7 +44,7 @@ def person_detail(request, id):
 
     elif request.method == 'PUT':
         person_data = JSONParser().parse(request) 
-        person_serializer = PersonSerializer(person, data=person_data) 
+        person_serializer = PersonSerializer(person, data=person_data)
         if person_serializer.is_valid(): 
             person_serializer.save() 
             return JsonResponse(person_serializer.data) 
@@ -52,5 +52,5 @@ def person_detail(request, id):
 
     elif request.method == 'DELETE':
         person.delete()
-
-        return JsonResponse({'message': 'Person was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        
+        return JsonResponse({'message': 'Person was deleted successfully!'}, status=200)

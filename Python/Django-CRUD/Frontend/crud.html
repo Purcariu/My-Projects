@@ -13,11 +13,10 @@
             headers: {
                 "Access-Control-Allow-Origin" : "*",
             },
-            contentType: "application/json",
             url: "http://127.0.0.1:8000/api/persons",
             success: function(persons) {
                 persons.forEach(person => 
-                    $('tbody').append('<tr id=' + person.id + '><th scope="row">' + person.id + '</th><td>' + person.first_name + '</td><td>' + person.last_name + '</td><td><button onclick=delete_person(' + person.id + ') class="btn btn-danger">Delete</button><button onclick=form_person(' + JSON.stringify(person) + ') class="btn btn-success">Edit</button></td></tr>')
+                    $('tbody').append('<tr id=' + person.id + '><th scope="row">' + person.id + '</th><td>' + person.first_name + '</td><td>' + person.last_name + '</td><td><button onclick=delete_person(' + person.id + ') class="btn btn-danger" style="margin-right: 2%">Delete</button><button onclick=form_person(' + JSON.stringify(person) + ') class="btn btn-success">Edit</button></td></tr>')
                 )
             },
             error: function(error){
@@ -31,7 +30,8 @@
                 async: true,
                 contentType: "application/json",
                 url: "http://127.0.0.1:8000/api/persons/" + id,
-                success: function() {
+                success: function(response) {
+                    console.log(response)
                     $("#" + id).remove();
                 }
             })
@@ -87,7 +87,7 @@
                 data: JSON.stringify(person),
                 url: "http://127.0.0.1:8000/api/persons",
                 success: function(person) {
-                    $("tbody").append('<tr id=' + person.id + '><th scope="row">' + person.id + '</th><td>' + person.first_name + '</td><td>' + person.last_name + '</td><td><button onclick=delete_person(' + person.id + ') class="btn btn-danger">Delete</button><button onclick=form_person(' + JSON.stringify(person) + ') class="btn btn-success">Edit</button></td></tr>');
+                    $("tbody").append('<tr id=' + person.id + '><th scope="row">' + person.id + '</th><td>' + person.first_name + '</td><td>' + person.last_name + '</td><td><button onclick=delete_person(' + person.id + ') class="btn btn-danger" style="margin-right: 2%">Delete</button><button onclick=form_person(' + JSON.stringify(person) + ') class="btn btn-success">Edit</button></td></tr>');
                 }
             })
 
@@ -95,6 +95,18 @@
                 e.preventDefault();
             })
             $("#form").hide();
+        }
+
+        function delete_all_persons() {
+            var sergiu = 'da';
+            $.ajax({
+                type: 'DELETE',
+                async: true,
+                url: "http://127.0.0.1:8000/api/persons",
+                success: function(result) {
+                    console.log(result)
+                }
+            })
         }
     </script>
 </head>
@@ -113,6 +125,7 @@
             </tbody>
         </table>
         <button id="add-button" onclick="form_person(false)" class="btn btn-primary">Add</button>
+        <button id="delete-all" onclick="delete_all_persons()" class="btn btn-danger">Delete all</button> 
         <div>
             <form id="form" style="display: none;">
                 <div class="form-group">
